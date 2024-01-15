@@ -1,0 +1,58 @@
+mql5
+//+------------------------------------------------------------------+
+//|                                                   Time Breakout |
+//|                                      Developed by Forex Robot Easy Team |
+//|                                           Website: forexroboteasy.com |
+//+------------------------------------------------------------------+
+
+// Define the input parameters
+input int StartHour = 8; // Start hour for breakout analysis
+input int EndHour = 16; // End hour for breakout analysis
+input double StopLoss = 50; // Stop loss in points
+input double TakeProfit = 100; // Take profit in points
+
+// Define global variables
+datetime tradeTime; // Trade execution time
+double breakoutLevel; // Optimal breakout level
+
+//+------------------------------------------------------------------+
+//| Expert initialization function                                   |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+   // Set the trading time
+   tradeTime = TimeCurrent();
+
+   // Calculate the breakout level
+   double priceRange = High[1] - Low[1]; // Price range within the previous candle
+   breakoutLevel = High[1] + priceRange; // Optimal breakout level
+
+   // Print the breakout level
+   Print('Breakout Level: ', breakoutLevel);
+
+   return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Expert tick function                                             |
+//+------------------------------------------------------------------+
+void OnTick()
+{
+   // Check if it's a valid trading time
+   if (Hour(tradeTime) >= StartHour && Hour(tradeTime) < EndHour)
+   {
+      // Check for breakout opportunity
+      if (Bid >= breakoutLevel)
+      {
+         // Open a buy trade
+         OrderSend(Symbol(), OP_BUY, 0.01, Ask, 0, Bid - StopLoss, Bid + TakeProfit, 'Time Breakout', 0, 0, Green);
+      }
+      else if (Ask <= breakoutLevel)
+      {
+         // Open a sell trade
+         OrderSend(Symbol(), OP_SELL, 0.01, Bid, 0, Ask + StopLoss, Ask - TakeProfit, 'Time Breakout', 0, 0, Red);
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
